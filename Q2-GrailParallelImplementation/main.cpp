@@ -26,18 +26,18 @@ int main(int argc, char** argv) {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	TCHAR prg[1000];
-	TCHAR nameExeGen[20] = { _T("querGenerator.exe") };
-	TCHAR nameExeMem[20] = { _T("Grailv1Mem.exe") };
-	TCHAR nameExeFile[20] = { _T("Grailv1File.exe") };
+	TCHAR nameExeGen[50] = { _T("./graphGenerator/graphGenerator.exe") };
+	TCHAR nameExeMem[50] = { _T("./Grailv1Mem/Grailv1Mem.exe") };
+	TCHAR nameExeFile[50] = { _T("./Grailv1File/Grailv1File.exe") };
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
-	printf("#####################################################################################################################################\n");
-	printf("################################################ Q2 - GRAIL PARALLEL IMPLEMENTATION #################################################\n");
-	printf("#####################################################################################################################################\n");
-	printf("########################################################### Developed by ############################################################\n");
-	printf("###################################  Stefano Bergia   Giuseppina Impagnatiello   Luca Barco  ########################################\n");
-	printf("#####################################################################################################################################\n\n\n");
+	printf("#################################################################################################################\n");
+	printf("###################################### Q2 - GRAIL PARALLEL IMPLEMENTATION #######################################\n");
+	printf("#################################################################################################################\n");
+	printf("################################################# Developed by ##################################################\n");
+	printf("#########################  Stefano Bergia   Giuseppina Impagnatiello   Luca Barco  ##############################\n");
+	printf("#################################################################################################################\n\n\n");
 
 	printf("We have developed two possible implementations of the GRAIL algorithm:\n\n \t- In the first one, the graph is entirely loaded in main memory, as an adjacency list.\n\t\t Some memory overloads could happen for big and/or dense graphs, depending on your machine\n\n\t-In the second one, the graph is stored in a binary file, allowing also very big and/or dense graphs.\n\t\tIt may take longer, because of the disk overhead.\n\n");
 	do {
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
 				do {
 					printf("\nSelect your input graph file:");
-					printf("\n\t0- arXiv_sub_6000-1.gr");
+					printf("\n\t0- arXiv_sub_6000-1");
 					printf("\n\t1- citeseer_sub_10720");
 					printf("\n\t2- go_sub_6793");
 					printf("\n\t3- pubmed_sub_9000-1");
@@ -83,24 +83,24 @@ int main(int argc, char** argv) {
 
 					switch (choice) {
 					case 0:
-						swprintf_s(graphInput, _T("./small_dense/agrocyc_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_dense/agrocyc_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_dense_real/arXiv_sub_6000-1.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_dense_real/arXiv_sub_6000-1.que"));
 						break;
 					case 1:
-						swprintf_s(graphInput, _T("./small_dense/citeseer_sub_10720.gra"));
-						swprintf_s(queryInput, _T("./small_dense/citeseer_sub_10720.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_dense_real/citeseer_sub_10720.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_dense_real/citeseer_sub_10720.que"));
 						break;
 					case 2:
-						swprintf_s(graphInput, _T("./small_dense/go_sub_6793.gra"));
-						swprintf_s(queryInput, _T("./small_dense/go_sub_6793.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_dense_real/go_sub_6793.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_dense_real/go_sub_6793.que"));
 						break;
 					case 3:
-						swprintf_s(graphInput, _T("./small_dense/pubmed_sub_9000-1.gra"));
-						swprintf_s(queryInput, _T("./small_dense/pubmed_sub_9000-1.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_dense_real/pubmed_sub_9000-1.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_dense_real/pubmed_sub_9000-1.que"));
 						break;
 					case 4:
-						swprintf_s(graphInput, _T("./small_dense/yago_sub_664.gra"));
-						swprintf_s(queryInput, _T("./small_dense/yago_sub_664.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_dense_real/yago_sub_664.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_dense_real/yago_sub_664.que"));
 						break;
 					default:
 						printf("\nSorry, I cannot understand what you want to do. Retry\n");
@@ -126,44 +126,44 @@ int main(int argc, char** argv) {
 					scanf_s("%d", &choice);
 					switch (choice) {
 					case 0:
-						swprintf_s(graphInput, _T("./small_sparse/agrocyc_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/agrocyc_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/agrocyc_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/agrocyc_dag_uniq.que"));
 						break;
 					case 1:
-						swprintf_s(graphInput, _T("./small_sparse/amaze_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/amaze_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/amaze_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/amaze_dag_uniq.que"));
 						break;
 					case 2:
-						swprintf_s(graphInput, _T("./small_sparse/anthra_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/anthra_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/anthra_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/anthra_dag_uniq.que"));
 						break;
 					case 3:
-						swprintf_s(graphInput, _T("./small_sparse/ecoo_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/ecoo_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/ecoo_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/ecoo_dag_uniq.que"));
 						break;
 					case 4:
-						swprintf_s(graphInput, _T("./small_sparse/human_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/human_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/human_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/human_dag_uniq.que"));
 						break;
 					case 5:
-						swprintf_s(graphInput, _T("./small_sparse/kegg_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/kegg_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/kegg_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/kegg_dag_uniq.que"));
 						break;
 					case 6:
-						swprintf_s(graphInput, _T("./small_sparse/mtbrv_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/mtbrv_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/mtbrv_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/mtbrv_dag_uniq.que"));
 						break;
 					case 7:
-						swprintf_s(graphInput, _T("./small_sparse/nasa_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/nasa_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/nasa_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/nasa_dag_uniq.que"));
 						break;
 					case 8:
-						swprintf_s(graphInput, _T("./small_sparse/vchocyc_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/vchocyc_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/vchocyc_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/vchocyc_dag_uniq.que"));
 						break;
 					case 9:
-						swprintf_s(graphInput, _T("./small_sparse/xmark_dag_uniq.gra"));
-						swprintf_s(queryInput, _T("./small_sparse/xmark_dag_uniq.que"));
+						swprintf_s(graphInput, _T("./benchmark/small_sparse_real/xmark_dag_uniq.gra"));
+						swprintf_s(queryInput, _T("./benchmark/small_sparse_real/xmark_dag_uniq.que"));
 						break;
 					default:
 						printf("\nSorry, I cannot understand what you want to do. Retry\n");
@@ -179,12 +179,12 @@ int main(int argc, char** argv) {
 					scanf_s("%d", &choice);
 					switch (choice) {
 					case 0:
-						swprintf_s(graphInput, _T("./large/cit-Patents.scc.gra"));
-						swprintf_s(queryInput, _T("./large/cit-Patents.scc.que"));
+						swprintf_s(graphInput, _T("./benchmark/large_real/cit-Patents.scc.gra"));
+						swprintf_s(queryInput, _T("./benchmark/large_real/cit-Patents.scc.que"));
 						break;
 					case 1:
-						swprintf_s(graphInput, _T("./large/unipretenc_22m.scc.gra"));
-						swprintf_s(queryInput, _T("./large/unipretenc_22m.scc.que"));
+						swprintf_s(graphInput, _T("./benchmark/large_real/unipretenc_22m.scc.gra"));
+						swprintf_s(queryInput, _T("./benchmark/large_real/unipretenc_22m.scc.que"));
 						break;
 					default:
 						printf("\nSorry, I cannot understand what you want to do. Retry\n");
