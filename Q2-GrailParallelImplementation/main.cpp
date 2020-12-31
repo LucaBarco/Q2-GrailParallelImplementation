@@ -179,15 +179,15 @@ int main(int argc, char** argv) {
 				do {
 					printf("\nOk,let's use  one of large real graphs\n");
 					printf("\nSelect your input graph file:\n");
-					printf("\n\t0- unipretenc_22m.scc.gra");
+					printf("\n\t0- uniprotenc_22m.scc.gra");
 					printf("\n\t1- cit-Patents.scc.gra");
 					printf("\n\n----> Make your choice: ");
 					scanf_s("%d", &choice);
 					switch (choice) {
 
 					case 0:
-						swprintf_s(graphInput, _T("./benchmark/large_real/unipretenc_22m.scc.gra"));
-						swprintf_s(queryInput, _T("./benchmark/large_real/unipretenc_22m.scc.que"));
+						swprintf_s(graphInput, _T("./benchmark/large_real/uniprotenc_22m.scc.gra"));
+						swprintf_s(queryInput, _T("./benchmark/large_real/uniprotenc_22m.scc.que"));
 						break;
 					
 						
