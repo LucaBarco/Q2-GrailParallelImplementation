@@ -138,8 +138,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 	int tmp = 0;
 
 	int i = 0;
-	if (argc < 3) {
-		fprintf(stderr, ("Missing parameters!\nPass the file name in the format inputGraphFile outputIndexFile\n"));
+	if (argc < 4) {
+		fprintf(stderr, ("Missing parameters!\nPass the file name in the format inputGraphFile n_labels outputIndexFile\n"));
 		return 0;
 	}
 
