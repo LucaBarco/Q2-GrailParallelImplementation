@@ -1,4 +1,4 @@
-﻿#include <tchar.h>
+#include <tchar.h>
 #include <Windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@ DWORD checkIndexFile(DWORD nodes, int nlabel, BOOL showedge);
 DWORD WINAPI parallelRead(LPVOID lpParam);
 struct output_record* readIndex(int node_index, HANDLE lk);
 void writeIndex(struct output_record* new_node, HANDLE lk);
-void printRoots(FILE* fp);
+void printRoots(FILE* fp, int nRoots);
 void setBitMap(int index, DWORD* bitmapArray);
 BOOL checkBitMap(int index, DWORD* bitmapArray);
 void RandomizedLabelling(int d);
@@ -117,7 +117,7 @@ HANDLE sync_mutex;					// used in lockindex and unlockindex to access struct syn
 struct file_sync* sync;						// used to synchronize threads generating the label
 int rootBitmapDim;							// size of the  bitMap containin the roots
 int labelProgressbar = 0, LabelPerc = 0;	// used for label's progressbar
-int indexProgress = 0,indexPerc = 0;		//used for index progressbar
+int indexProgress = 0, indexPerc = 0;		//used for index progressbar
 int logProgress = 0, logPerc = 0;		//used for index progressbar
 int queryCount = 0;							//used for reachability queries progress bar
 
@@ -145,18 +145,15 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	graphFile = argv[1];			//name for the file containing the graph
 	nLabels = _wtoi(argv[2]);		//number of label to use (MAX 5)
-	if(nLabels>5)
-		nLabels=5;
+	if (nLabels > 5)
+		nLabels = 5;
 	queryFile = argv[3];			//name for the txt file that contains the query
 
 
-	wcscpy_s(indexFile,graphFile);			//name of the binary file that will contain the index
-	tmp = wcslen(indexFile);
-	indexFile[tmp] = '.';
-	indexFile[tmp+1] = 'i';
-	indexFile[tmp+2] = 'd';
-	indexFile[tmp+3] = '\0';
 
+	
+	
+	wcscpy_s(indexFile, _T("IndexFile.ind"));
 	wcscpy_s(queryOutFile, _T("queryResults.txt")); 			//name for the file that will contain the query results
 	wcscpy_s(outputLog, _T("Labels.txt")); 						//name for the file that will contain the output log
 	nL = nLabels;
@@ -166,30 +163,36 @@ int _tmain(int argc, LPTSTR argv[]) {
 	indexMutex = CreateMutex(NULL, FALSE, NULL);
 	nNodes = 0;
 
+
+	
+
 	//printf("We're working for you..... ");
 	//printf("-----------------------------------------------------------------\n");
 	printf("--------------------- INDEX FILE GENERATION -----------------------\n\n");
 	//printf("-----------------------------------------------------------------\n");
-	printf("---> Reading the graph ad generating the index file...");
+	printf("---> Reading the graph and generating the index file...");
 	clock_t begin_index = clock();
 	generateIndex(2);					//scan a first time the graph file to generate the index file with sizes and offsets, as well as calculating roots
 	clock_t end_index = clock();
+
+
 	CloseHandle(bitmapMutex);
 	CloseHandle(indexMutex);
 	fprintf(stdout, "Index File Created\n");
-	printRoots(labelFp);					//print the roots
 	nRoots = getBits(FALSE);
+	printRoots(labelFp, nRoots);					//print the roots
+	
 	fprintf(stdout, ("---> Index Creation Time: %f s\n\n"), (double)(end_index - begin_index) / CLOCKS_PER_SEC);
 
 	//printf("-----------------------------------------------------------------\n");
 	printf("---------------------------   ROOTS   ---------------------------\n\n");
 	//printf("-----------------------------------------------------------------\n");
 	printf("---> Number of Roots: %d\n\n", nRoots);	//print the number of roots
-	
+
 	//printf("-----------------------------------------------------------------\n");
 	printf("---------------------------  LABELS   ---------------------------\n\n");
 	//printf("-----------------------------------------------------------------\n");
-	 printf("---> Creating labels... ");
+	printf("---> Creating labels... ");
 	percMutex = CreateMutex(NULL, FALSE, NULL);
 	clock_t begin_labelling = clock();
 	RandomizedLabelling(nLabels);		//generate the labels
@@ -198,7 +201,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	CloseHandle(percMutex);
 	clock_t begin_query, end_query;
 
-	 wprintf_s(_T("---> Printing labels on file %s..."),outputLog);
+	wprintf_s(_T("---> Printing labels on file %s..."), outputLog);
 	checkIndexFile(nNodes, nLabels, FALSE);	//print the index file with the labels
 	printf("Done!\n");
 
@@ -279,7 +282,7 @@ DWORD checkIndexFile(DWORD nodes, int nLabel, BOOL showedge) {
 
 	char* buffer = NULL;			//buffer to read from file
 	struct output_record node;		//record read from the index file
-	int i, k = 0,r,z;
+	int i, k = 0, r, z;
 
 	FILE* fp;
 	fp = labelFp;
@@ -303,7 +306,7 @@ DWORD checkIndexFile(DWORD nodes, int nLabel, BOOL showedge) {
 			for (z = 0; z < r; z++)
 				printf("\b");
 		}
-	
+
 
 		//if showedhe is TRUE i use the offset and the size contained in the record i just read to read the children of the node in the grapf file
 		if (showedge) {
@@ -342,7 +345,7 @@ VOID generateIndex(int n_thread) {
 	hOut = CreateFile(indexFile, GENERIC_WRITE, 0, NULL,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
-	if (fIn == NULL || hOut == INVALID_HANDLE_VALUE ) {
+	if (fIn == NULL || hOut == INVALID_HANDLE_VALUE) {
 		fprintf(stderr, ("Error opening files!\n"));
 		return;
 	}
@@ -357,7 +360,7 @@ VOID generateIndex(int n_thread) {
 	fseek(fIn, 0, SEEK_SET);												//place file pointer in the beginning of the file
 
 	threadH = (HANDLE*)malloc(n_thread * sizeof(HANDLE));					//Threads initialization
-	tOffsets = (struct tread_t*)malloc(n_thread * sizeof(struct tread_t));	
+	tOffsets = (struct tread_t*)malloc(n_thread * sizeof(struct tread_t));
 	tId = (DWORD*)malloc(n_thread * sizeof(DWORD));
 
 	for (i = 0; i < n_thread; i++) {
@@ -391,7 +394,7 @@ DWORD WINAPI parallelRead(LPVOID lpParam) {
 
 	int flag = 1;										//used to individuate the node index in a row
 	int read_sharp = 0;									//used to signal when the '#' at the end of the node is read
-	int j = 0, i = 0, k = 0, z = 0, r = 0, index;		
+	int j = 0, i = 0, k = 0, z = 0, r = 0, index;
 
 	struct output_record out;							//struct to save index record
 	for (k = 0; k < NLABEL; k++) {						//setup starting vaue for the labels
@@ -474,10 +477,10 @@ DWORD WINAPI parallelRead(LPVOID lpParam) {
 
 				WaitForSingleObject(bitmapMutex, INFINITE);								//print progressbar
 				if (indexPerc != ((index - index) + indexProgress) * 100 / nNodes) {
-				int indexPerc = ((index - index) + indexProgress) * 100 / nNodes;
-				r = printf("%d%%", indexPerc);
-				for (z = 0; z < r; z++)
-					printf("\b");
+					int indexPerc = ((index - index) + indexProgress) * 100 / nNodes;
+					r = printf("%d%%", indexPerc);
+					for (z = 0; z < r; z++)
+						printf("\b");
 				}
 				setBitMap(index, rootsBitmap);											//update roots bitmap (the child i found cannot be a root)
 				ReleaseMutex(bitmapMutex);
@@ -497,18 +500,19 @@ DWORD WINAPI parallelRead(LPVOID lpParam) {
 
 
 //printf the roots for the graph
-void printRoots(FILE* fp) {
-	int i,j=0;
-	for (i = 0; i <= nNodes; i++) {
-		if (!checkBitMap(i , rootsBitmap)) {
-			fprintf(fp, "%d ", i );
+void printRoots(FILE* fp, int nRoots) {
+	int i, j = 0;
+	fprintf(fp, "#Roots: %d\nRoot indexes:\t", nRoots);
+	for (i = 0; i < nNodes; i++) {
+		if (!checkBitMap(i, rootsBitmap)) {
+			fprintf(fp, "%d ", i);
 			j++;
 			if (j == 20) {
 				j = 0;
-				fprintf(fp, "\n");
+				fprintf(fp, "\n\t");
 			}
 		}
-		
+
 	}
 }
 
@@ -551,7 +555,7 @@ void lockIndex(int node_index, int my_pos, int d) {
 		}
 		else {
 			sync[pos].queue_count++;							//if the node is locked i update the number of threads waiting on it
-			ReleaseMutex(sync_mutex);							
+			ReleaseMutex(sync_mutex);
 			WaitForSingleObject(sync[pos].sem, INFINITE);		//i wait on the semaphore of the thread lockig the node
 		}
 	} while (TRUE);												//stay in this function as long as the thread doesn't get the lock
@@ -790,7 +794,7 @@ DWORD WINAPI singleIndexRandomizedLabelling(LPVOID params) {
 
 //recursive visit on the graph to assign the label according to GRAIL alghoritm
 int  RandomizedVisit(int node_index, struct tread_t_label* d) {
-	int nChildren, curChild, minLower = nNodes, tmp, lowlab,j,r,z;
+	int nChildren, curChild, minLower = nNodes, tmp, lowlab, j, r, z;
 	struct output_record* index_obj;
 	HANDLE file;
 
@@ -824,7 +828,7 @@ int  RandomizedVisit(int node_index, struct tread_t_label* d) {
 				printf("\b");
 		}
 		ReleaseMutex(percMutex);
-		
+
 		lowlab = min(minLower, d->r);					//compute lower label	
 		index_obj->labels[d->label_index].low = lowlab;	//set lower label
 		index_obj->labels[d->label_index].high = d->r;	//set higher label
@@ -845,7 +849,7 @@ int  RandomizedVisit(int node_index, struct tread_t_label* d) {
 }
 
 //given a vector v it randomizes it's element by two by two swapping
-void shuffle(int* v, int n, int seed) {					
+void shuffle(int* v, int n, int seed) {
 
 	srand((unsigned)time(NULL) + seed);
 	int i = 0, tmp;
@@ -880,8 +884,8 @@ BOOL Reachable(int u, int  v, int nLabels) {
 	data.visited = (DWORD*)malloc(rootBitmapDim * sizeof(DWORD));	//allocate a bitmap to store visited nodes
 	for (i = 0; i < rootBitmapDim; i++)
 		data.visited[i] = 0;
-	int ret =RecursiveReachable(&data);			//start recursion to look for the reachability
-	
+	int ret = RecursiveReachable(&data);			//start recursion to look for the reachability
+
 	free(data.u);
 	free(data.v);
 	free(data.visited);
@@ -889,9 +893,9 @@ BOOL Reachable(int u, int  v, int nLabels) {
 }
 
 //return true if a query u->v is reachable using nLabels to speed up the process
-BOOL RecursiveReachable(struct reach * data) {
+BOOL RecursiveReachable(struct reach* data) {
 	struct reach* next_data;
-	int i, child_index, childCount = 0, ret=0;
+	int i, child_index, childCount = 0, ret = 0;
 
 	//if u is equal to v the the original query is reachable
 	if (data->u->node_index == data->v->node_index) {
@@ -904,7 +908,7 @@ BOOL RecursiveReachable(struct reach * data) {
 		setBitMap(data->u->node_index, data->visited);
 	else
 		return 0;
-	
+
 	for (i = 0; i < data->nLabels; i++) {
 		//error checking 
 		if (data->v->labels[i].low == nNodes + 1 || data->u->labels[i].low == nNodes + 1)
@@ -914,32 +918,32 @@ BOOL RecursiveReachable(struct reach * data) {
 			return 0;
 		}
 	}
-	
+
 	childCount = data->u->nChildren;								//get the number of children
 	next_data = (struct reach*)malloc(sizeof(struct reach));		//allocate data to pass to next level of recursion
 
 	for (i = 0; i < childCount; i++) {								//cycle over all children
 		child_index = getChildren(data->u->node_index, i, hIndex);	//read the current child
-		
+
 		next_data->u = readIndex(child_index, hIndex);				//read it's index
 
 		next_data->nLabels = data->nLabels;							//set struct to pass to next level
 		next_data->v = data->v;
 		next_data->visited = data->visited;
 
-		ret= RecursiveReachable(next_data);							//call recursiveReachable on (child of u)->v
+		ret = RecursiveReachable(next_data);							//call recursiveReachable on (child of u)->v
 		free(next_data->u);
 		if (ret == 1)												//if it is reachable i stop the recursion
 			break;
-		
-	}	
+
+	}
 	free(next_data);
 
 	return ret;
 }
 
 //opens the query file and generates n_thread to read it and check reachability queries
-VOID QueryResolutionSetup(LPTSTR queryFile,int n_thread) {
+VOID QueryResolutionSetup(LPTSTR queryFile, int n_thread) {
 	FILE* fIn;
 	HANDLE* threadH;
 	DWORD* tId;
@@ -983,7 +987,7 @@ VOID QueryResolutionSetup(LPTSTR queryFile,int n_thread) {
 //reads the query files ina synchronous way and calls Reachable over it, it also computes statistics
 void ResolveQueries(LPVOID params) {
 	FILE* fp = (FILE*)params;
-	int i1, i2,read=1,i,j,n=0, r,  z;
+	int i1, i2, read = 1, i, j, n = 0, r, z;
 	float q = 0;
 	clock_t begin_query, end_query;
 	BOOL res = FALSE;
@@ -991,7 +995,7 @@ void ResolveQueries(LPVOID params) {
 	int buffer[QUERYBUFFER][2];		//matrix used to store QUERYBUFFER reachability queries, used to improove synchronization between threads
 
 	//cycle until there are queries to read
-	while (read>0) {
+	while (read > 0) {
 
 		WaitForSingleObject(bufferMutex, INFINITE);			//access the file pointer in mutual exclusion
 		for (i = 0; i < QUERYBUFFER && read > 0; i++) {		//fill up the buffe
@@ -1005,12 +1009,12 @@ void ResolveQueries(LPVOID params) {
 		}
 		ReleaseMutex(bufferMutex);							//release the mutex
 
-		for(j=0;j<i;j++){
+		for (j = 0; j < i; j++) {
 			begin_query = clock();
 			res = Reachable(buffer[j][0], buffer[j][1], nL);				//call reachable on each query in the buffer
 			end_query = clock();
 
-			fprintf(queryOutput,"%d,%d,%d\n", buffer[j][0], buffer[j][1], res);
+			fprintf(queryOutput, "%d,%d,%d\n", buffer[j][0], buffer[j][1], res);
 			n++;
 
 
@@ -1022,7 +1026,7 @@ void ResolveQueries(LPVOID params) {
 			ReleaseMutex(queryStatsMutex);
 
 			q += (double)(end_query - begin_query) / CLOCKS_PER_SEC;
-			
+
 		}
 	}
 	WaitForSingleObject(queryStatsMutex, INFINITE);
