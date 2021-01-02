@@ -145,6 +145,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	graphFile = argv[1];			//name for the file containing the graph
 	nLabels = _wtoi(argv[2]);		//number of label to use (MAX 5)
+	if(nLabels>5)
+		nLabels=5;
 	queryFile = argv[3];			//name for the txt file that contains the query
 
 
