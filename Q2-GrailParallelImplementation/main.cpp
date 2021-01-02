@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	TCHAR prg[1000];
-	TCHAR nameExeGen[50] = { _T("./graphGenerator/graphGenerator.exe") };
+	TCHAR nameExeGen[50] = { _T("./graphGenerator-StQ/graphGenerator-StQ.exe") };
 	TCHAR nameExeMem[50] = { _T("./Grailv1Mem/Grailv1Mem.exe") };
 	TCHAR nameExeFile[50] = { _T("./Grailv1File/Grailv1File.exe") };
 	ZeroMemory(&si, sizeof(si));
@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
 		swprintf_s(graphInput, _T("myGraph.gra"));
 		swprintf_s(queryInput, _T("myGraph.que"));
 		do {
+			printf("\n---------------------------> MENU <--------------------------\n");
 			printf("Choose the Grail version: \n\n\t\t- 0: load the in-memory version \n\t\t- 1: load the in-file version\n\t\t- 2: exit\n\n----> Make your choice: ");
 			scanf_s("%d", &mem_option);
 
@@ -55,6 +56,7 @@ int main(int argc, char** argv) {
 				printf("\nOk,let's use file based implementation\n");
 				break;
 			case end:
+				printf("\nGoodbye, have a nice day!\n");
 				return 0;
 			default:
 				printf("\nSorry, I cannot understand what you want to do. Retry\n");
@@ -67,7 +69,7 @@ int main(int argc, char** argv) {
 			printf("\n\t0- Small dense benchmark");
 			printf("\n\t1- Small sparse benchmark");
 			printf("\n\t2- Large benchmark");
-			printf("\n\t3- Generate your own file\n");
+			printf("\n\t3- Generate your own file using GraphGenerator-StQ\n");
 			printf("\n\n----> Make your choice: ");
 			scanf_s("%d", &graph_option);
 
@@ -240,7 +242,7 @@ int main(int argc, char** argv) {
 				// Close process and thread handles. 
 				CloseHandle(pi.hProcess);
 				CloseHandle(pi.hThread);
-
+				printf("The graph and queries are stored in myGraph.gra and myGraph.que\n");
 				break;
 
 			default:
@@ -276,7 +278,14 @@ int main(int argc, char** argv) {
 		// Close process and thread handles. 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
+		printf("\n************************ RESULTS *******************************");
+			if (mem_option == file) {
+			printf("\nThe results are stored in:\n\t- Graph Index file: IndexFile.ind\n\t- Labels: Labels.txt\n\t- Queries results: queryResults.txt\n\nNOTICE: these files will be rewritten at the next execution");
+		}
+		else {
+				printf("\nThe results are stored in:\n\t- Labels: Labels.txt\n\t- Queries results: queryResults.txt\n\nNOTICE: these files will be rewritten at the next execution");
 
-
+		}
+		printf("\n****************************************************************\n\n");
 	}while (mem_option!=end);
 }
