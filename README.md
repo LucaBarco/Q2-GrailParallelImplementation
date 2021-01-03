@@ -10,7 +10,7 @@ For statistics on benchmarks see the **[benchmark.md](https://github.com/LucaBar
 ## **VERY IMPORTANT NOTICE**
 ### This repository stores the benchmark files with git lfs, since they are big and over the git file size limits. 
 ### It could happen that, after a clone or a pull, these files are not really downloaded because of a limit of storage/bandwith applied to the account. 
-### If this happen, you can:
+### If this happens, you can:
 ### - download them from this link: https://drive.google.com/drive/folders/12-McbCNR9cYB-JpqA_kMF530xCL01Kow?usp=sharing
 ### - write me an email: **barcoluca16@gmail.com**
 
